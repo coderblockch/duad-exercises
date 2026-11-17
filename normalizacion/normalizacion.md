@@ -166,29 +166,48 @@ Con la clave `(vin, owner_id)`, eliminamos las **dependencias parciales**:
 
 ## Paso 3 — Tercera Forma Normal (3NF)
 
-Buscamos **dependencias transitivas** en `owners`.
+En las tablas del paso anterior quedaban varias **dependencias transitivas escondidas**. Las corregimos una por una:
 
-`owner_name` y `owner_phone` describen a la **persona**. Pero `insurance_company` e `insurance_policy` **no** describen a la persona: describen a la **aseguradora** (una entidad distinta). Por lo tanto, las extraemos a su propia tabla.
+**a) El modelo del vehículo no pertenece al `vin`.** Los campos `make`, `model` y `year` no describen al auto específico (identificado por el `vin`), sino al **modelo** (ej: "Honda Accord 2003"). Si hubiera 500 autos del mismo modelo, esos valores se repetirían en 500 filas. → Se extraen a una tabla `car_models`. El `color` **sí** pertenece al auto específico, así que se queda en `cars`.
+
+**b) El seguro pertenece al auto, no al dueño.** Una póliza asegura un **vehículo**, no a una persona (si el auto se vende, la póliza va con el auto). → El vínculo del seguro se mueve a `cars`, y `owners` queda solo con los datos de la persona.
+
+**c) La compañía y la póliza son entidades distintas.** El nombre de la aseguradora se repetiría por cada póliza que ofrezca (si "ABC Insurance" tuviera 20 pólizas, el string se repetiría 20 veces). → Se separan en `insurance_companies` y `policies`, donde cada póliza pertenece a una compañía mediante una FK.
 
 ## ✅ Solución final — Cars (3NF)
+
+**`car_models`**
+
+| Columna | Tipo | Clave |
+|---|---|---|
+| model_id | INT | PK |
+| make | VARCHAR(50) | |
+| model | VARCHAR(50) | |
+| year | INT | |
 
 **`cars`**
 
 | Columna | Tipo | Clave |
 |---|---|---|
 | vin | VARCHAR(20) | PK |
-| make | VARCHAR(50) | |
-| model | VARCHAR(50) | |
-| year | INT | |
 | color | VARCHAR(30) | |
+| model_id | INT | FK → car_models |
+| policy_id | INT | FK → policies |
 
-**`insurance`**
+**`insurance_companies`**
 
 | Columna | Tipo | Clave |
 |---|---|---|
-| insurance_id | INT | PK |
-| company | VARCHAR(100) | |
-| policy | VARCHAR(50) | |
+| company_id | INT | PK |
+| company_name | VARCHAR(100) | |
+
+**`policies`**
+
+| Columna | Tipo | Clave |
+|---|---|---|
+| policy_id | INT | PK |
+| policy_name | VARCHAR(50) | |
+| company_id | INT | FK → insurance_companies |
 
 **`owners`**
 
@@ -197,7 +216,6 @@ Buscamos **dependencias transitivas** en `owners`.
 | owner_id | INT | PK |
 | owner_name | VARCHAR(100) | |
 | owner_phone | VARCHAR(20) | |
-| insurance_id | INT | FK → insurance |
 
 **`car_owners`**
 
@@ -210,4 +228,4 @@ Buscamos **dependencias transitivas** en `owners`.
 
 ## Conclusión
 
-En ambos ejercicios pasamos de una tabla con datos repetidos a un conjunto de tablas donde **cada dato vive en un solo lugar**, conectadas por llaves primarias y foráneas. Orders quedó en **4 tablas** y Cars en **4 tablas**, todas en 3NF, sin redundancia ni anomalías.
+En ambos ejercicios pasamos de una tabla con datos repetidos a un conjunto de tablas donde **cada dato vive en un solo lugar**, conectadas por llaves primarias y foráneas. Orders quedó en **4 tablas** y Cars en **6 tablas**, todas en 3NF, sin redundancia ni anomalías.
