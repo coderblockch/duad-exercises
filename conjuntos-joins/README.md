@@ -66,7 +66,7 @@ INSERT INTO rents VALUES
 Se usa `LEFT JOIN` para incluir también los libros sin autor.
 
 ```sql
-SELECT books.name AS libro, authors.name AS autor
+SELECT books.name AS book, authors.name AS author
 FROM books
 LEFT JOIN authors ON books.author = authors.id;
 ```
@@ -76,7 +76,7 @@ LEFT JOIN authors ON books.author = authors.id;
 ### 3.2 Libros que no tienen autor
 
 ```sql
-SELECT name AS libro
+SELECT name AS book
 FROM books
 WHERE author IS NULL;
 ```
@@ -88,7 +88,7 @@ WHERE author IS NULL;
 Se traen todos los autores con `LEFT JOIN` y se filtran los que no tienen libro (`NULL`).
 
 ```sql
-SELECT authors.name AS autor
+SELECT authors.name AS author
 FROM authors
 LEFT JOIN books ON authors.id = books.author
 WHERE books.id IS NULL;
@@ -101,7 +101,7 @@ WHERE books.id IS NULL;
 Se usa `INNER JOIN` (solo coincidencias) y `DISTINCT` para no repetir libros rentados varias veces.
 
 ```sql
-SELECT DISTINCT books.name AS libro
+SELECT DISTINCT books.name AS book
 FROM books
 INNER JOIN rents ON books.id = rents.book_id;
 ```
@@ -111,7 +111,7 @@ INNER JOIN rents ON books.id = rents.book_id;
 ### 3.5 Libros que nunca han sido rentados
 
 ```sql
-SELECT books.name AS libro
+SELECT books.name AS book
 FROM books
 LEFT JOIN rents ON books.id = rents.book_id
 WHERE rents.id IS NULL;
@@ -122,7 +122,7 @@ WHERE rents.id IS NULL;
 ### 3.6 Clientes que nunca han rentado un libro
 
 ```sql
-SELECT customers.name AS cliente
+SELECT customers.name AS customer
 FROM customers
 LEFT JOIN rents ON customers.id = rents.customer_id
 WHERE rents.id IS NULL;
@@ -133,7 +133,7 @@ WHERE rents.id IS NULL;
 ### 3.7 Libros rentados en estado "Overdue"
 
 ```sql
-SELECT books.name AS libro, rents.state AS estado
+SELECT books.name AS book, rents.state AS state
 FROM books
 INNER JOIN rents ON books.id = rents.book_id
 WHERE rents.state = 'Overdue';
